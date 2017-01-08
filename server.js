@@ -27,6 +27,8 @@ app.use(bodyParser.json());
 
 var port = process.env.PORT || 8080    // set our port
 
+app.listen(port);
+
 // ROUTES FOR OUR API
 
 // ================================
@@ -57,7 +59,10 @@ router.get('/', function(req, res) {
 router.route('/account')
   .post(function(req, res){
     var account = new Account();
+    console.log(req.body);
     account.name = req.body.name;
+    console.log(req.body.name);
+    console.log(account.name);
     account.balance = 0;
 
     account.save(function(err){
@@ -95,6 +100,7 @@ router.route('/account/:account_id')
         res.send(err);
       }
       account.name = req.body.name;
+      account.email = req.body.email;
       account.balance = req.body.balance;
 
       account.save(function(err) {
@@ -153,20 +159,21 @@ router.route('/transaction')
                       console.log("Unable to save changes to to_acc");
                     }
                     // save transaction
-                    transaction.save(function(err)) {
+                    transaction.save(function(err) {
                       if (err) {
                         console.log('Transaction: ' + transaction.id  + ' is not saved.')
                         res.send(err);
                       }
                       console.log("Transaction is successful!");
                       res.send(200);
-                    }
+                    });
                   });
                 }
               });
             } else {
               // not enough balance in from_acc
               console.log("There is not enough balance from : " + transaction.from_acc);
+              res.send(418);
             }
           }
         });
@@ -174,13 +181,12 @@ router.route('/transaction')
     });
   });
 
-
 app.use('/payment_api', router);
 
 // START THE SERVER
 
 // ===============================
 
-app.listen(port);
+
 
 console.log('Magic happens on port ' + port);
